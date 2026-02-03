@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @default(cuid())
+  name      String?
+  email     String? @unique
+  children  Child[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Child {
+  id        String       @id @default(cuid())
+  name      String
+  age       Int
+  parentId  String
+  parent    User         @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  sessions  SessionLog[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Story {
+  id         String     @id @default(cuid())
+  title      String
+  content    String
+  theme      String
+  growthArea GrowthArea
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model SessionLog {
+  id            String   @id @default(cuid())
+  childId       String
+  child         Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  themeSelected String
+  createdAt     DateTime @default(now())
+}
+
+enum GrowthArea {
+  FINDING_CALM     @map("Finding Calm")
+  BODY_CONFIDENCE  @map("Body Confidence")
+  TELLING_THE_TRUTH @map("Telling the Truth")
+}
